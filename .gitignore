@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Data (do not commit raw/processed data or Kaggle credentials)
+data/
+*.parquet
+*.csv
+*.zip
+kaggle.json
+
+# Secrets / env
+.env
+*.pem
+
+# Databricks
+.databricks/
