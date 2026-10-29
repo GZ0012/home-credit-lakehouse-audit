@@ -21,3 +21,5 @@ kaggle.json
 
 # Databricks
 .databricks/
+
+.databricks
