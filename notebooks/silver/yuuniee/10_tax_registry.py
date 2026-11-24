@@ -1,6 +1,6 @@
 """Silver yuuniee 10: tax registry a / b / c -> one row per case.
 
-Three tax registries, each aggregated on its own (no 1 month window, no combined
+Three tax registries, each aggregated on its own (no 1 month window, combined
 tax features in DataProcessor5).
 
 yuuniee's feature code is not public, so we use Volkova's DataProcessor5 (commit

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="1188" viewBox="0 0 1540 1188" role="img" aria-labelledby="t d">
+<title id="t">Feature lineage of both systems</title>
+<desc id="d">17 bronze training tables feed 10 silver scripts. Each script is built twice, once per system: B replicates Volkova's DataProcessor2, A is the yuuniee stand-in (DataProcessor5). Each system's 10 silver tables are left-joined on case_id into its gold training table.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#52514e"/></marker></defs>
+<style>
+  text{font-family:Helvetica,Arial,sans-serif;fill:#0b0b0b}
+  .h{font-size:17px;font-weight:700}
+  .b{font-size:13.5px;fill:#52514e}
+  .tag{font-size:14px;font-weight:700}
+  .m{font-family:Menlo,Consolas,monospace;font-size:12.5px;fill:#52514e}
+  .mb{font-family:Menlo,Consolas,monospace;font-size:14px;font-weight:700;fill:#0b0b0b}
+  .lane{font-size:13px;font-weight:700;fill:#52514e;letter-spacing:1px}
+  .flow{stroke:#8f8e88;stroke-width:1.5;fill:none;marker-end:url(#a)}
+</style>
+<rect width="1540" height="1188" fill="#fcfcfb"/>
+<text x="40" y="50" style="font-size:26px;font-weight:700">Feature lineage: bronze → silver → gold, for both systems</text>
+<text x="40" y="78" class="b">The same 10 silver scripts exist twice: silver/volkova/ (System B) and silver/yuuniee/ (System A). Each turns its bronze tables into one row per case.</text>
+<text x="40" y="100" class="b"><tspan font-weight="700" fill="#2a78d6">B</tspan> = replication of Volkova's DataProcessor2 (commit d5e228c).  <tspan font-weight="700" fill="#eb6834">A</tspan> = yuuniee stand-in: Volkova's DataProcessor5, because yuuniee's feature code is not public.</text>
+<text x="40" y="170" class="lane">BRONZE · 17 TRAINING TABLES</text>
+<text x="350" y="170" class="lane">SILVER · SCRIPT → TABLE (silver_volkova.* and silver_yuuniee.*)</text>
+<text x="1160" y="170" class="lane">GOLD · ONE TABLE PER SYSTEM</text>
+<rect x="40" y="224.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="241.5" class="m" text-anchor="start">train_base</text>
+<path class="flow" d="M290 237.0 C320 237.0 320 237.0 347 237.0"/>
+<rect x="350" y="200.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="222.0" class="mb" text-anchor="start">01_case_sources</text>
+<text x="513" y="222.0" class="m" text-anchor="start">→ train_case_sources</text>
+<text x="364" y="244.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="244.0" class="b" text-anchor="start">base cases + applicant / static columns, fallbacks (coalesce)</text>
+<text x="364" y="264.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="264.0" class="b" text-anchor="start">base cases only, date_decision as date</text>
+<path d="M1070 237.0 L1115 237.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="312.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="329.5" class="m" text-anchor="start">train_applprev_1</text>
+<path class="flow" d="M290 325.0 C320 325.0 320 325.0 347 325.0"/>
+<rect x="350" y="288.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="310.0" class="mb" text-anchor="start">02_applprev_1</text>
+<text x="495" y="310.0" class="m" text-anchor="start">→ train_applprev_1_features</text>
+<text x="364" y="332.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="332.0" class="b" text-anchor="start">last application row; all / approved / last 5 years aggregations; formulas</text>
+<text x="364" y="352.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="352.0" class="b" text-anchor="start">mean / max / var over all previous applications</text>
+<path d="M1070 325.0 L1115 325.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="400.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="417.5" class="m" text-anchor="start">train_applprev_2</text>
+<path class="flow" d="M290 413.0 C320 413.0 320 413.0 347 413.0"/>
+<rect x="350" y="376.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="398.0" class="mb" text-anchor="start">03_applprev_2</text>
+<text x="495" y="398.0" class="m" text-anchor="start">→ train_applprev_2_features</text>
+<text x="364" y="420.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="420.0" class="b" text-anchor="start">contacts and cards of previous applications, 4 aggregations</text>
+<text x="364" y="440.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="440.0" class="b" text-anchor="start">only the row-count (num_group max)</text>
+<path d="M1070 413.0 L1115 413.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="472.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="489.5" class="m" text-anchor="start">train_person_1</text>
+<path class="flow" d="M290 485.0 C320 485.0 320 501.0 347 501.0"/>
+<rect x="40" y="504.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="521.5" class="m" text-anchor="start">train_person_2</text>
+<path class="flow" d="M290 517.0 C320 517.0 320 501.0 347 501.0"/>
+<rect x="350" y="464.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="486.0" class="mb" text-anchor="start">04_person</text>
+<text x="459" y="486.0" class="m" text-anchor="start">→ train_person_features</text>
+<text x="364" y="508.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="508.0" class="b" text-anchor="start">applicant row kept as is; related persons aggregated</text>
+<text x="364" y="528.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="528.0" class="b" text-anchor="start">max / mean over all persons, applicant mixed in</text>
+<path d="M1070 501.0 L1115 501.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="560.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="577.5" class="m" text-anchor="start">train_credit_bureau_a_1</text>
+<path class="flow" d="M290 573.0 C320 573.0 320 589.0 347 589.0"/>
+<rect x="40" y="592.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="609.5" class="m" text-anchor="start">train_credit_bureau_b_1</text>
+<path class="flow" d="M290 605.0 C320 605.0 320 589.0 347 589.0"/>
+<rect x="350" y="552.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="574.0" class="mb" text-anchor="start">05_credit_bureau_1</text>
+<text x="540" y="574.0" class="m" text-anchor="start">→ train_credit_bureau_1_features</text>
+<text x="364" y="596.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="596.0" class="b" text-anchor="start">a + b contracts combined; active / closed views; 5-year window</text>
+<text x="364" y="616.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="616.0" class="b" text-anchor="start">a and b separately, mean / max / var</text>
+<path d="M1070 589.0 L1115 589.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="664.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="681.5" class="m" text-anchor="start">train_static_0</text>
+<path class="flow" d="M290 677.0 C320 677.0 320 677.0 347 677.0"/>
+<rect x="350" y="640.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="662.0" class="mb" text-anchor="start">06_static_0</text>
+<text x="477" y="662.0" class="m" text-anchor="start">→ train_static_0_features</text>
+<text x="364" y="684.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="684.0" class="b" text-anchor="start">fallbacks + 36 formulas (loan, income ratios)</text>
+<text x="364" y="704.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="704.0" class="b" text-anchor="start">columns kept as they are</text>
+<path d="M1070 677.0 L1115 677.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="752.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="769.5" class="m" text-anchor="start">train_static_cb_0</text>
+<path class="flow" d="M290 765.0 C320 765.0 320 765.0 347 765.0"/>
+<rect x="350" y="728.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="750.0" class="mb" text-anchor="start">07_static_cb_0</text>
+<text x="504" y="750.0" class="m" text-anchor="start">→ train_static_cb_0_features</text>
+<text x="364" y="772.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="772.0" class="b" text-anchor="start">6 fallbacks + 1 ratio</text>
+<text x="364" y="792.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="792.0" class="b" text-anchor="start">columns kept as they are</text>
+<path d="M1070 765.0 L1115 765.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="824.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="841.5" class="m" text-anchor="start">train_credit_bureau_a_2</text>
+<path class="flow" d="M290 837.0 C320 837.0 320 853.0 347 853.0"/>
+<rect x="40" y="856.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="873.5" class="m" text-anchor="start">train_credit_bureau_b_2</text>
+<path class="flow" d="M290 869.0 C320 869.0 320 853.0 347 853.0"/>
+<rect x="350" y="816.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="838.0" class="mb" text-anchor="start">08_credit_bureau_2</text>
+<text x="540" y="838.0" class="m" text-anchor="start">→ train_credit_bureau_2_features</text>
+<text x="364" y="860.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="860.0" class="b" text-anchor="start">payment history; active / closed; 1-year and 1-month windows</text>
+<text x="364" y="880.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="880.0" class="b" text-anchor="start">mean / max / var, no time windows</text>
+<path d="M1070 853.0 L1115 853.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="904.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="921.5" class="m" text-anchor="start">train_debitcard_1</text>
+<path class="flow" d="M290 917.0 C320 917.0 320 949.0 347 949.0"/>
+<rect x="40" y="936.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="953.5" class="m" text-anchor="start">train_deposit_1</text>
+<path class="flow" d="M290 949.0 C320 949.0 320 949.0 347 949.0"/>
+<rect x="40" y="968.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="985.5" class="m" text-anchor="start">train_other_1</text>
+<path class="flow" d="M290 981.0 C320 981.0 320 949.0 347 949.0"/>
+<rect x="350" y="912.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="934.0" class="mb" text-anchor="start">09_debitcard_deposit_other</text>
+<text x="612" y="934.0" class="m" text-anchor="start">→ train_debitcard_deposit_other_features</text>
+<text x="364" y="956.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="956.0" class="b" text-anchor="start">balances and turnover; 5-year window by open date</text>
+<text x="364" y="976.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="976.0" class="b" text-anchor="start">mean / max / var per source</text>
+<path d="M1070 949.0 L1115 949.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="40" y="1008.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="1025.5" class="m" text-anchor="start">train_tax_registry_a_1</text>
+<path class="flow" d="M290 1021.0 C320 1021.0 320 1053.0 347 1053.0"/>
+<rect x="40" y="1040.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="1057.5" class="m" text-anchor="start">train_tax_registry_b_1</text>
+<path class="flow" d="M290 1053.0 C320 1053.0 320 1053.0 347 1053.0"/>
+<rect x="40" y="1072.0" width="250" height="26" rx="5" fill="#ffffff" stroke="#8f8e88"/>
+<text x="50" y="1089.5" class="m" text-anchor="start">train_tax_registry_c_1</text>
+<path class="flow" d="M290 1085.0 C320 1085.0 320 1053.0 347 1053.0"/>
+<rect x="350" y="1016.0" width="720" height="74" rx="8" fill="#ffffff" stroke="#8f8e88"/>
+<text x="364" y="1038.0" class="mb" text-anchor="start">10_tax_registry</text>
+<text x="513" y="1038.0" class="m" text-anchor="start">→ train_tax_registry_features</text>
+<text x="364" y="1060.0" class="tag" style="fill:#2a78d6" text-anchor="start">B</text>
+<text x="382" y="1060.0" class="b" text-anchor="start">amounts and dates, all rows + last month (registry c filter kept as in her code)</text>
+<text x="364" y="1080.0" class="tag" style="fill:#eb6834" text-anchor="start">A</text>
+<text x="382" y="1080.0" class="b" text-anchor="start">mean / max / var per registry</text>
+<path d="M1070 1053.0 L1115 1053.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<path d="M1115 237.0 L1115 1053.0" stroke="#8f8e88" stroke-width="1.5" fill="none"/>
+<rect x="1160" y="475.0" width="340" height="150" rx="10" fill="#ffffff" stroke="#2a78d6" stroke-width="2"/>
+<text x="1176" y="503.0" class="h" text-anchor="start">System B · Volkova</text>
+<text x="1176" y="527.0" class="m" text-anchor="start">gold_volkova.train_features</text>
+<text x="1176" y="555.0" class="b" text-anchor="start">left join of its 10 silver tables</text>
+<text x="1176" y="575.0" class="b" text-anchor="start">on case_id; 1 row per case</text>
+<text x="1176" y="595.0" class="b" text-anchor="start">(1,526,659 cases)</text>
+<text x="1176" y="615.0" class="m" text-anchor="start">gold/&lt;system&gt;/01-04</text>
+<path class="flow" d="M1115 550.0 L1157 550.0"/>
+<rect x="1160" y="665.0" width="340" height="150" rx="10" fill="#ffffff" stroke="#eb6834" stroke-width="2"/>
+<text x="1176" y="693.0" class="h" text-anchor="start">System A · yuuniee</text>
+<text x="1176" y="717.0" class="m" text-anchor="start">gold_yuuniee.train_features</text>
+<text x="1176" y="745.0" class="b" text-anchor="start">left join of its 10 silver tables</text>
+<text x="1176" y="765.0" class="b" text-anchor="start">on case_id; 1 row per case</text>
+<text x="1176" y="785.0" class="b" text-anchor="start">(1,526,659 cases)</text>
+<text x="1176" y="805.0" class="m" text-anchor="start">gold/&lt;system&gt;/01-04</text>
+<path class="flow" d="M1115 740.0 L1157 740.0"/>
+<text x="40" y="1158" class="b">Every silver script checks that its output has exactly the cases of train_base, one row per case_id. Both: dates become days before date_decision. B also turns the masked category a55475b1 into null.</text>
+</svg>

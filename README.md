@@ -1,65 +1,99 @@
 # Home Credit Lakehouse Audit
 
-technical audit of an automated decision
-system (ADS), built on a Databricks lakehouse (Delta Lake + Unity Catalog).
+A bias audit of two automated decision systems (ADSs) for credit risk, built on a
+Databricks lakehouse (Delta Lake + Unity Catalog).
+
+**Start here:** [`notebooks/audit_report.ipynb`](notebooks/audit_report.ipynb) walks
+through every step of the pipeline and the bias audit, with results and figures.
+It runs on Databricks (see [How to run](#how-to-run)).
 
 ## What this project does
 
-We audit two independently developed algorithmic decision systems (ADSs) built
-for the completed **Home Credit – Credit Risk Model Stability** Kaggle
-competition (2024). Both systems estimate applicants' credit default risk.
-We compare their predictive reliability, temporal stability, and group /
-individual fairness on a common holdout set, rather than taking their
-leaderboard scores at face value.
+Two independently developed systems for the
+[Home Credit – Credit Risk Model Stability](https://www.kaggle.com/competitions/home-credit-credit-risk-model-stability)
+Kaggle competition (2024) predict whether a loan applicant will default:
 
-- **Solution A** — [yuuniee, 1st place solution](https://www.kaggle.com/competitions/home-credit-credit-risk-model-stability/writeups/yuuniee-1st-place-solution-my-betting-strategy) (CatBoost + LightGBM + DenseLight ensemble)
-- **Solution B** — [Evgeniia Volkova, independent submission](https://github.com/evgeniavolkova/kagglehomecredit2024) (LightGBM/CatBoost pipeline with time-window features)
-- **Data** — [Home Credit – Credit Risk Model Stability](https://www.kaggle.com/competitions/home-credit-credit-risk-model-stability) (Kaggle, 2024)
+- **System A**: [yuuniee, 1st place solution](https://www.kaggle.com/competitions/home-credit-credit-risk-model-stability/writeups/yuuniee-1st-place-solution-my-betting-strategy).
+  Her feature code is not public, so we use Volkova's simpler `DataProcessor5` as a stand-in.
+- **System B**: [Evgeniia Volkova, kagglehomecredit2024](https://github.com/evgeniavolkova/kagglehomecredit2024)
+  (commit `d5e228c`). We replicate her `DataProcessor2` feature pipeline and LightGBM.
 
-Full scope and audit plan: see the project proposal (submitted separately on
-Gradescope per course requirements).
+We rebuild both pipelines on the same data and ask **where along the pipeline bias
+against groups of applicants enters**, using the three types of bias from
+Friedman & Nissenbaum (1996):
+
+| Bias type | Question | Status |
+|---|---|---|
+| Pre-existing | Do default rates already differ by gender, age and family state in the raw data? | Done |
+| Technical | Do the design choices of each pipeline change how groups are represented or predicted? | Planned |
+| Emergent | Do the group gaps change over time (`WEEK_NUM`)? | Planned |
+
+Main pre-existing finding: in the training labels, men default 1.5× as often as
+women, applicants aged 18–24 default 3× as often as those 65+, and family state
+gaps reach 1.9×. Family state is missing for 52 % of cases.
 
 ## Architecture
 
-Data processing runs on a shared Databricks workspace (Delta Lake tables,
-registered in Unity Catalog), layered as:
+![Pipeline overview](docs/figures/pipeline_overview.png)
 
 ```
-raw (Kaggle source files)
-  -> bronze  (ingested as Delta tables, minimal typing)
-  -> silver  (cleaned, deduplicated, joined across history tables)
-  -> gold    (aggregated feature mart used for modeling / audit)
+raw     Kaggle zip (parquet + metadata CSVs)
+  -> bronze  one Delta table per Kaggle table (chunks unioned, types aligned)
+  -> silver  one feature table per source, one row per case, per system
+  -> gold    all features joined, one row per case, per system -> LightGBM
 ```
 
-The final course deliverable is a **Google Colab notebook**, so the `gold`
-layer is exported (Parquet/CSV) and pulled into Colab for modeling, fairness
-analysis, and the report figures — Databricks is the pipeline, Colab is the
-graded artifact.
+Unity Catalog schemas in catalog `dbw_home_credit_audit`: `bronze`,
+`silver_volkova`, `silver_yuuniee`, `gold_volkova`, `gold_yuuniee`, `silver_explore`.
+
+Feature lineage for both systems:
+[`docs/figures/feature_lineage.png`](docs/figures/feature_lineage.png).
 
 ## Repo structure
 
 ```
 notebooks/
-  bronze/              ingestion notebooks (raw -> bronze)
-  silver/               cleaning / joins (bronze -> silver)
-  gold/                  feature aggregation (silver -> gold)
-  ml_reproduction/
-    solution_a_yuuniee/    reproduction of Solution A
-    solution_b_volkova/    reproduction of Solution B
-  colab_export/          notebooks used to push gold-layer data to Colab
-docs/                     architecture notes, audit plan, meeting notes
+  audit_report.ipynb       project report: every step, results, AI disclosure
+  bronze/                  raw zip -> bronze Delta tables (01-03)
+  silver/
+    01_data_finding.py     first look at train_base
+    02_data_check.py       null rates of every bronze column
+    volkova/               System B silver features (01-10) + FEATURES.md
+    yuuniee/               System A silver features (01-10)
+    explore/               our audits on bronze (01_pre_existing_bias.py)
+  gold/
+    volkova/               System B: 01 join, 02 checks, 03 audit, 04 LightGBM
+    yuuniee/               System A: same steps
+docs/
+  figures/                 figures used in the report
+  azure-setup-checklist.md workspace / storage setup notes
 ```
 
+The `volkova/` and `yuuniee/` folders only reproduce what each author did.
+Our own audit code is kept separately in `explore/`.
 
-## Working on this repo
+## How to run
 
-Notebooks are developed in Databricks and synced here via **Databricks
-Repos** (Git integration) — each team member connects their own GitHub
-credentials in Databricks User Settings, then commits/pushes from the Repos
-Git panel. See `docs/databricks-repos-setup.md` (TBD) for the walkthrough.
+1. In Databricks: **Workspace → Create → Git folder**, URL
+   `https://github.com/GZ0012/home-credit-lakehouse-audit`.
+2. Attach serverless compute or a cluster (DBR 14+).
+3. Build the data, in order (skip if the tables already exist):
+   1. upload the Kaggle zip to the volume `dbw_home_credit_audit.bronze.raw_uploads`
+   2. `notebooks/bronze/01-03`
+   3. `notebooks/silver/<system>/01-10`
+   4. `notebooks/gold/<system>/01-04`
+4. Open `notebooks/audit_report.ipynb` and **Run all**. Only the pre-existing bias
+   audit runs (it reads bronze only, about 1–3 minutes).
 
-## Citations
+`04_train_lgbm.py` needs `lightgbm` 4.x (add it in the Environment panel on
+serverless, or as a cluster library).
 
-Code and data sources are cited inline in each notebook and in the project
-proposal, per course requirement to "prominently cite your sources of code
-and data."
+## Sources
+
+- Data: Home Credit Group, *Home Credit – Credit Risk Model Stability*, Kaggle 2024.
+- System A: yuuniee, *1st place solution*, Kaggle write-up.
+- System B: E. Volkova, *kagglehomecredit2024*, GitHub, commit `d5e228c`.
+- B. Friedman and H. Nissenbaum, "Bias in computer systems", *ACM TOIS* 14(3), 1996.
+
+Each script cites the author code it follows in its docstring. AI use is disclosed
+in section 9 of the report notebook.

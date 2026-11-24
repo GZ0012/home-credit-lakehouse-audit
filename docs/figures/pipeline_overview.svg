@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="t d">
+<title id="t">Home Credit lakehouse audit: pipeline overview</title>
+<desc id="d">Raw Kaggle files are ingested into bronze Delta tables. Two replication pipelines (Volkova, Solution B; yuuniee stand-in, Solution A) build silver and gold tables and train LightGBM. The audit lane checks pre-existing bias on bronze (done), and plans technical bias (pipeline design) and emergent bias (over time).</desc>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" markerWidth="8" markerHeight="8" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#52514e"/></marker>
+</defs>
+<style>
+  text{font-family:Helvetica,Arial,sans-serif;fill:#0b0b0b}
+  .h{font-size:16px;font-weight:700}
+  .b{font-size:13px;fill:#52514e}
+  .m{font-family:Menlo,Consolas,monospace;font-size:12px;fill:#52514e}
+  .lane{font-size:13px;font-weight:700;fill:#52514e;letter-spacing:1px}
+  .box{fill:#ffffff;stroke-width:2}
+  .flow{stroke:#52514e;stroke-width:2;fill:none;marker-end:url(#a)}
+  .plan{stroke:#52514e;stroke-width:2;fill:none;stroke-dasharray:6 5;marker-end:url(#a)}
+</style>
+<rect width="1180" height="720" fill="#fcfcfb"/>
+<text x="40" y="48" style="font-size:24px;font-weight:700">Home Credit lakehouse audit: pipeline overview</text>
+<text x="40" y="74" class="b">Databricks · Delta Lake · Unity Catalog (catalog dbw_home_credit_audit). Each box is a set of notebooks in this repo.</text>
+
+<text x="100" y="116" class="lane">RAW</text>
+<text x="290" y="116" class="lane">BRONZE</text>
+<text x="530" y="116" class="lane">SILVER</text>
+<text x="790" y="116" class="lane">GOLD</text>
+<text x="1020" y="116" class="lane">MODEL</text>
+
+<!-- raw -->
+<rect class="box" x="40" y="250" width="160" height="130" rx="10" stroke="#52514e"/>
+<text x="56" y="280" class="h">Kaggle data</text>
+<text x="56" y="304" class="b">competition zip</text>
+<text x="56" y="324" class="b">parquet files +</text>
+<text x="56" y="344" class="b">metadata CSVs</text>
+
+<!-- bronze -->
+<rect class="box" x="235" y="220" width="185" height="190" rx="10" stroke="#52514e"/>
+<text x="251" y="250" class="h">Bronze</text>
+<text x="251" y="272" class="m">bronze.*</text>
+<text x="251" y="298" class="b">one Delta table per</text>
+<text x="251" y="318" class="b">Kaggle table (chunks</text>
+<text x="251" y="338" class="b">unioned, types aligned)</text>
+<text x="251" y="364" class="b">+ _source_file</text>
+<text x="251" y="388" class="m">bronze/01-03</text>
+
+<!-- silver -->
+<rect class="box" x="455" y="140" width="235" height="150" rx="10" stroke="#2a78d6"/>
+<text x="471" y="170" class="h">Volkova (Solution B)</text>
+<text x="471" y="192" class="m">silver_volkova · 10 tables</text>
+<text x="471" y="218" class="b">replicates DataProcessor2:</text>
+<text x="471" y="238" class="b">fallbacks, time windows,</text>
+<text x="471" y="258" class="b">active / closed contracts</text>
+<text x="471" y="278" class="m">silver/volkova/01-10</text>
+
+<rect class="box" x="455" y="340" width="235" height="150" rx="10" stroke="#eb6834"/>
+<text x="471" y="370" class="h">yuuniee (Solution A)</text>
+<text x="471" y="392" class="m">silver_yuuniee · 10 tables</text>
+<text x="471" y="418" class="b">stand-in: DataProcessor5</text>
+<text x="471" y="438" class="b">(her code is not public),</text>
+<text x="471" y="458" class="b">mean / max / var per case</text>
+<text x="471" y="478" class="m">silver/yuuniee/01-10</text>
+
+<!-- gold -->
+<rect class="box" x="725" y="140" width="215" height="150" rx="10" stroke="#2a78d6"/>
+<text x="741" y="170" class="h">Volkova features</text>
+<text x="741" y="192" class="m">gold_volkova</text>
+<text x="741" y="212" class="m">  .train_features</text>
+<text x="741" y="238" class="b">1 row per case (1.53M)</text>
+<text x="741" y="258" class="b">checks 02 · audit 03</text>
+<text x="741" y="278" class="m">gold/volkova/01-03</text>
+
+<rect class="box" x="725" y="340" width="215" height="150" rx="10" stroke="#eb6834"/>
+<text x="741" y="370" class="h">yuuniee features</text>
+<text x="741" y="392" class="m">gold_yuuniee</text>
+<text x="741" y="412" class="m">  .train_features</text>
+<text x="741" y="438" class="b">1 row per case (1.53M)</text>
+<text x="741" y="458" class="b">checks 02 · audit 03</text>
+<text x="741" y="478" class="m">gold/yuuniee/01-03</text>
+
+<!-- model -->
+<rect class="box" x="975" y="140" width="170" height="150" rx="10" stroke="#2a78d6"/>
+<text x="991" y="170" class="h">LightGBM</text>
+<text x="991" y="194" class="b">Volkova's params,</text>
+<text x="991" y="214" class="b">5-fold CV over</text>
+<text x="991" y="234" class="b">weeks, gini stability</text>
+<text x="991" y="258" class="b">→ OOF predictions</text>
+<text x="991" y="278" class="m">gold/volkova/04</text>
+
+<rect class="box" x="975" y="340" width="170" height="150" rx="10" stroke="#eb6834"/>
+<text x="991" y="370" class="h">LightGBM</text>
+<text x="991" y="394" class="b">same training code,</text>
+<text x="991" y="414" class="b">only the features</text>
+<text x="991" y="434" class="b">differ</text>
+<text x="991" y="458" class="b">→ OOF predictions</text>
+<text x="991" y="478" class="m">gold/yuuniee/04</text>
+
+<!-- audit lane -->
+<line x1="40" y1="525" x2="1145" y2="525" stroke="#d6d5d0" stroke-width="1"/>
+<text x="455" y="552" class="lane">BIAS AUDIT · our own work (explore/ folders)</text>
+
+<rect class="box" x="455" y="570" width="235" height="120" rx="10" stroke="#1baf7a"/>
+<text x="471" y="598" class="h">Pre-existing bias · done</text>
+<text x="471" y="620" class="b">default rate by gender,</text>
+<text x="471" y="640" class="b">age, family state; χ² test</text>
+<text x="471" y="664" class="m">silver/explore/01</text>
+<text x="471" y="680" class="m">→ silver_explore</text>
+
+<rect class="box" x="725" y="570" width="215" height="120" rx="10" stroke="#1baf7a" stroke-dasharray="7 5"/>
+<text x="741" y="598" class="h">Technical bias · plan</text>
+<text x="741" y="620" class="b">how each pipeline's</text>
+<text x="741" y="640" class="b">design choices change</text>
+<text x="741" y="660" class="b">group features / errors</text>
+
+<rect class="box" x="975" y="570" width="170" height="120" rx="10" stroke="#1baf7a" stroke-dasharray="7 5"/>
+<text x="991" y="598" class="h">Emergent · plan</text>
+<text x="991" y="620" class="b">group gaps over</text>
+<text x="991" y="640" class="b">WEEK_NUM, from</text><text x="991" y="660" class="b">OOF predictions</text>
+
+<!-- flows -->
+<path class="flow" d="M200 315 L232 315"/>
+<path class="flow" d="M420 280 C440 280 435 215 452 215"/>
+<path class="flow" d="M420 350 C440 350 435 415 452 415"/>
+<path class="flow" d="M690 215 L722 215"/>
+<path class="flow" d="M690 415 L722 415"/>
+<path class="flow" d="M940 215 L972 215"/>
+<path class="flow" d="M940 415 L972 415"/>
+<path class="flow" d="M327 410 L327 630 L452 630"/>
+<path class="plan" d="M832 490 L832 567"/>
+<path class="plan" d="M1060 490 L1060 567"/>
+</svg>
